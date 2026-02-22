@@ -7,13 +7,18 @@ from scipy.integrate import odeint
 ############################################################################################
 # Global parameters
 ############################################################################################
-N      = 500000
-mu     = 8 / 1000 / 365
-Lambda = mu * N
-delta  = 1 / 1000 / 365
+N  = 220e6
+Lambda = 37.9 / 1000 / 365    # birth/recruitment rate
+mu     = 11.5 / 1000 / 365    # natural death rate
+delta  = 268 / N          # TB disease-induced death rate
 eps    = 1 / 365
 phi    = 0.03
 rho    = 0.21 * (1 / 180)
+
+
+
+
+
 
 ############################################################################################
 # Continuous time dynamics function
@@ -62,16 +67,16 @@ class F(object):
         alpha = u_vec[0]   # vaccination rate
         tau   = u_vec[1]   # treatment rate
 
-        lam = beta * I / N
+        lam = beta * I
 
         # f0 — drift dynamics (uncontrolled)
         f0_contribution = np.array([
             Lambda - lam*S - mu*S,
             -sigma*lam*V - mu*V,
-            lam*S + sigma*lam*V + (phi*R*I)/N - (eps + mu)*E,
+            lam*S + sigma*lam*V + (phi*R*I) - (eps + mu)*E,
             eps*E + rho*T - (mu + delta)*I,
             -(gamma + rho + mu)*T,
-            gamma*T - mu*R - (phi*R*I)/N,
+            gamma*T - mu*R - (phi*R*I),
             0, 0, 0, 0, 0, 0
         ])
 
@@ -121,27 +126,30 @@ class H(object):
 ############################################################################################
 # Numeric parameters & initial conditions
 ############################################################################################
-beta  = 0.010
-sigma = 0.50
-gamma = 1 / 180
-eps   = 1 / 365
-phi   = 0.03
-rho   = 0.21 * (1 / 180)
 
-I0 = 0.05 * N
-V0 = 0.08 * N
-E0 = 0.08 * N
-T0 = 0.06 * N
-R0 = 0.01 * N
-S0 = N - V0 - E0 - I0 - T0 - R0
+beta =  0.15   # Transmission rate (every Infectious person infects 2 others on average)
+sigma =  0.40  # Vaccination Inefficiency (50% effective)
+gamma = 1 / 180 # Treatment completion (6 months treatment)
+eps = 1 / 365   # Latency progression rate
+phi = 0.03      # Exogenous reinfection rate (i.e R faces 43% infection risk)
+rho = 0.21 * (1 / 180) # treatment failure (21% Failure)
+
+
+
+I0      = 361000 / N
+V0      = 0.65                 # BCG coverage ~65% (WHO immunization data)
+R0   = 0.02                 # Estimated recovered proportion
+E0      = 3 * I0               # Exposed typically 3× infectious for TB
+T0      = 0.6 * I0             # Those already on treatment
+S0      = 1.0 - V0 - E0 - I0 - T0 - R0
 
 # State vector includes parameters as states
 x0 = np.array([S0, V0, E0, I0, T0, R0,
                beta, eps, gamma, sigma, phi, rho])
 
 # Control inputs
-alpha = 1 / 365
-tau   = 1 / 30
+alpha  = 0.01    
+tau    = 0.005 
 u_vec = np.array([alpha, tau])
 
 print("State names :", F().f(x0, u_vec, return_state_names=True))
