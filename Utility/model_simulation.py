@@ -7,10 +7,10 @@ from scipy.integrate import odeint
 ############################################################################################
 # Global parameters
 ############################################################################################
-N  = 220e6
-Lambda = 37.9 / 1000 / 365    # birth/recruitment rate
-mu     = 11.5 / 1000 / 365    # natural death rate
-delta  = 268 / N          # TB disease-induced death rate
+N  = 500000
+mu     = 8 / 1000 / 365
+Lambda = mu * N
+delta  = 1 / 1000 / 365         # TB disease-induced death rate
 eps    = 1 / 365
 phi    = 0.03
 rho    = 0.21 * (1 / 180)
@@ -149,7 +149,7 @@ x0 = np.array([S0, V0, E0, I0, T0, R0,
 
 # Control inputs
 alpha  = 0.01    
-tau    = 0.005 
+tau    = 0.1 
 u_vec = np.array([alpha, tau])
 
 print("State names :", F().f(x0, u_vec, return_state_names=True))
