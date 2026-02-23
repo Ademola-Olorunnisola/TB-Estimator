@@ -137,7 +137,7 @@ rho = 0.21 * (1 / 180) # treatment failure (21% Failure)
 
 
 
-I0      = 361000 / N
+I0      = 361000 / N_pop
 V0      = 0.65                 # BCG coverage ~65% (WHO immunization data)
 R0   = 0.02                 # Estimated recovered proportion
 E0      = 3 * I0               # Exposed typically 3× infectious for TB
